@@ -35,6 +35,7 @@ const userSchema = new mongoose.Schema({
     email: String,
     password: String,
     googleId: String,
+    secret: String,
 });
 
 /* SETUP PASSPORT MONGO LOCAL */
@@ -109,6 +110,32 @@ app.get("/secrets", function(req,res){
     } else {
         res.redirect("login");
     }
+});
+
+app.get("/submit", function(req,res){
+    if (req.isAuthenticated()){
+        res.render("submit");
+    } else {
+        res.redirect("login");
+    }
+});
+
+app.post("/submit", function(req,res){
+    const submittedSecret = req.body.secret;
+
+    console.log(req.user);
+
+    User.findById(req.user.id)
+     .then(foundId =>{
+        if(foundId){
+            foundId.secret = submittedSecret;
+            foundId.save();
+            res.redirect("/secrets");
+        }
+     })
+     .catch(err =>{
+        console.log(err);
+     })
 });
 
 app.get("/logout", function(req,res){
